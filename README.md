@@ -23,7 +23,7 @@ Running the sample
 
 or
 
-`docker run -it -p 8180:8080 --name bpe-chave bpe-qrcode:1.0.0-SNAPSHOT`
+`docker run -it -p 8180:8080 --name bpe-qrcode bpe-qrcode:1.0.0-SNAPSHOT`
 
 **bpe-chave**
 
