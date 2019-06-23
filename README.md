@@ -3,17 +3,17 @@ Part of the BPe responsible for generating the key and the URL of the QRCode
 
 ## Options
 
-Generating the artifact
+Generating the executable jar file
 
 `mvn clean package`
-
-Generating the image artifact
-
-`mvn clean package -Pimage`
 
 Running integration tests
 
 `mvn clean verify`
+
+Generating the image
+
+`mvn clean package docker:build`
 
 Running the sample
 
