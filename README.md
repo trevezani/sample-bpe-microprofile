@@ -31,6 +31,6 @@ curl
 curl 
   -H "Content-Type: application/json" 
   -X POST 
-  -d '{"uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13","cbp": "12345678"}'~~``~~
+  -d '{"uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13","cbp": "12345678"}'
   http://localhost:8280/chave/bean
 `
