@@ -3,6 +3,18 @@ Part of the BPe responsible for generating the key and the URL of the QRCode
 
 ## Options
 
+Generating the artifact
+
+`mvn clean package`
+
+Generating the image artifact
+
+`mvn clean package -Pimage`
+
+Running integration tests
+
+`mvn clean verify`
+
 Running the sample
 
 **bpe-qrcode**
