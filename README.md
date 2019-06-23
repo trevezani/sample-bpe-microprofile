@@ -21,9 +21,17 @@ Running the sample
 
 `mvn thorntail:run -Dswarm.port.offset=100`
 
+or
+
+`docker run -it -p 8180:8080 --name bpe-chave bpe-qrcode:1.0.0-SNAPSHOT`
+
 **bpe-chave**
 
 `mvn thorntail:run -Dswarm.port.offset=200`
+
+or
+
+`docker run -it -p 8280:8080 --name bpe-chave bpe-chave:1.0.0-SNAPSHOT`
 
 
 ## Services

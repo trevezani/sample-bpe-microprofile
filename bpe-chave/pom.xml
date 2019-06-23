@@ -10,7 +10,6 @@
 
     <properties>
         <version.thorntail>2.4.0.Final</version.thorntail>
-        <version.arquillian>1.2.1.Final</version.arquillian>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
@@ -52,15 +51,25 @@
                     <properties>
                         <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
                     </properties>
-                    <jvmArguments>
-                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArgument>
-                    </jvmArguments>
-                </configuration>
-<!--                <configuration>-->
 <!--                    <jvmArguments>-->
 <!--                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArgument>-->
 <!--                    </jvmArguments>-->
-<!--                </configuration>-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.28.0</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>${project.build.finalName}:${project.version}</name>
+                            <build>
+                                <dockerFileDir>${project.basedir}</dockerFileDir>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
