@@ -2,6 +2,9 @@ package br.com.trevezani.bpechave.rest;
 
 import br.com.trevezani.bpechave.bean.ChaveBean;
 import br.com.trevezani.bpechave.controller.BPeChaveController;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,6 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+@Tag(name = "BPeChave", description = "Microserviço responsável por gerar a chave BPe")
 @ApplicationScoped
 @Path("/chave")
 public class BPeChaveEndPoint {
@@ -18,6 +22,8 @@ public class BPeChaveEndPoint {
     private BPeChaveController controller;
 
     @GET
+    @Operation(summary = "Gerar chave BPe")
+    @APIResponse(description = "Chave BPe")
     @Path("/{uf}/{emissao}/{documento}/{modelo}/{serie}/{tipoEmissao}/{numeroDocumentoFiscal}/{cbp}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response doGetChave(@PathParam("uf") String uf, @PathParam("emissao") String emissao,
@@ -34,6 +40,8 @@ public class BPeChaveEndPoint {
 
     @POST
     @Path("/bean")
+    @Operation(summary = "Gerar chave BPe via JSON")
+    @APIResponse(description = "Chave BPe")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
     public Response doGetChaveBean(ChaveBean bean) {
