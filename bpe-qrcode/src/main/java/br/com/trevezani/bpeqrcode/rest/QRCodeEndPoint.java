@@ -1,6 +1,5 @@
 package br.com.trevezani.bpeqrcode.rest;
 
-import br.com.trevezani.bpeqrcode.controller.BPeChaveController;
 import br.com.trevezani.bpeqrcode.controller.BPeQRCodeController;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,8 +15,8 @@ import javax.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/qrcode")
 public class QRCodeEndPoint {
-    @Inject
-    private BPeChaveController chaveController;
+//    @Inject
+//    private BPeChaveController chaveController;
 
     @Inject
     private BPeQRCodeController bpeQRCodeController;
@@ -30,7 +29,7 @@ public class QRCodeEndPoint {
                                 @PathParam("modelo") String modelo, @PathParam("serie") String serie,
                                 @PathParam("tipoEmissao") String tipoEmissao, @PathParam("numeroDocumentoFiscal") String numeroDocumentoFiscal,
                                 @PathParam("cbp") String cbp) {
-        String chave = chaveController.getChaveBPe( uf, emissao, documento, modelo, serie, tipoEmissao, numeroDocumentoFiscal, cbp);
+        String chave = "ND"; //chaveController.getChaveBPe( uf, emissao, documento, modelo, serie, tipoEmissao, numeroDocumentoFiscal, cbp);
         String url = bpeQRCodeController.getURL(ambiente, uf);
 
         StringBuilder retorno = new StringBuilder();
