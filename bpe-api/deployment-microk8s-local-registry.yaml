@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bpeapi-deployment
+  labels:
+    app: bpeapi
+spec:
+  selector:
+    matchLabels:
+      app: bpeapi
+  template:
+    metadata:
+      labels:
+        app: bpeapi
+    spec:
+      containers:
+      - name: bpeapi
+        image: localhost:32000/bpe-api:v1
+        ports:
+        - containerPort: 8080
+

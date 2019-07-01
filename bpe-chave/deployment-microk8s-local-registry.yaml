@@ -14,8 +14,7 @@ spec:
         app: bpechave
     spec:
       containers:
-      - name: bpechave
-        image: localhost:32000/bpe-chave:v1
-        ports:
-        - containerPort: 8080
-
+        - name: bpechave
+          image: localhost:32000/bpe-chave:v1
+          ports:
+            - containerPort: 8080
