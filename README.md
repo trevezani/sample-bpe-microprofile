@@ -18,6 +18,15 @@ Generating the image
 
 Running the sample
 
+
+**bpe-api**
+
+`mvn thorntail:run -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280`
+
+or
+
+`docker run -it -p 8180:8080 -e bpechave.api.url=http://localhost:8280 --name bpe-api bpe-api:1.0.0-SNAPSHOT`
+
 **bpe-qrcode**
 
 `mvn thorntail:run -Dswarm.port.offset=100`
