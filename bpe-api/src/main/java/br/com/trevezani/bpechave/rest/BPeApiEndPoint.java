@@ -6,6 +6,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,11 +24,14 @@ import javax.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/")
 public class BPeApiEndPoint {
-    private ObjectMapper om = new ObjectMapper();
+    private static final String RESPONSE_STRING_FORMAT = "base-api => %s\n";
+    private static final ObjectMapper om = new ObjectMapper();
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Inject
-    @ConfigProperty(name = "url.bpechave", defaultValue = "localhost")
-    private String urlBPeChave;
+    @ConfigProperty(name = "bpechave.api.url", defaultValue = "http://bpe-chave:8080/")
+    private String bpechaveURL;
 
     @GET
     @Path("versao")
@@ -45,36 +50,35 @@ public class BPeApiEndPoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response doGetChaveBean(ChaveBean bean) {
         if (!bean.isValid()) {
-            return Response.status(400,"Parâmetros inválidos").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("Parâmetros inválidos").build();
         }
 
         String chave = "NA";
-        String error = null;
+        String beanJsonString = null;
 
         try {
-            chave = getChaveService(bean);
-
+            beanJsonString = om.writeValueAsString(bean);
         } catch (Exception e) {
-            error = e.toString();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
+        }
+
+        try {
+            JsonObject obj = getChaveBean(beanJsonString);
+            chave = obj.getString("chbpe");
+
+        } catch (ProcessingException ex) {
+            logger.warn("Exception trying to get the response from bpe-chave service.", ex);
+
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(String.format(RESPONSE_STRING_FORMAT, ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage()))
+                    .build();
         }
 
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("chbpe", chave);
 
-        if (chave.equals("NA")) {
-            json.add("url.bpechave", urlBPeChave);
-        }
-
-        if (error != null) {
-            json.add("error", error);
-        }
-
         return Response.ok(json.build()).build();
-    }
-
-    private String getChaveService(ChaveBean bean) throws Exception {
-        JsonObject obj = getChaveBean(om.writeValueAsString(bean));
-        return obj.getString("chbpe");
     }
 
     @Timeout(200)
@@ -83,17 +87,13 @@ public class BPeApiEndPoint {
     private JsonObject getChaveBean(final String beanJsonString) {
         Client client = ClientBuilder.newClient();
 
-        try {
-            final Response response = client.target("http://" + urlBPeChave + ":8082")
-                    .path("chave")
-                    .path("bean")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Entity.json(beanJsonString));
+        final Response response = client.target(bpechaveURL)
+                .path("chave")
+                .path("bean")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(beanJsonString));
 
-            return response.readEntity(JsonObject.class);
-        } catch (Exception e) {
-            return getChaveBeanFallBack(beanJsonString);
-        }
+        return response.readEntity(JsonObject.class);
     }
 
     private JsonObject getChaveBeanFallBack(final String beanJsonString) {
