@@ -1,6 +1,6 @@
 package br.com.trevezani.rest;
 
-import br.com.trevezani.bean.ChaveBean;
+import br.com.trevezani.bean.QRCodeBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
@@ -37,12 +37,11 @@ public class ApiBPeQRCodeEndPoint {
     @Path("qrcode")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response doGetQRCode(ChaveBean bean) {
+    public Response doGetQRCode(QRCodeBean bean) {
         if (!bean.isValid()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Parâmetros inválidos").build();
         }
 
-        String chave = "NA";
         String beanJsonString = null;
 
         try {
@@ -51,37 +50,37 @@ public class ApiBPeQRCodeEndPoint {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
         }
 
+        JsonObject obj = null;
+
         try {
-            JsonObject obj = getChaveBean(beanJsonString);
-            chave = obj.getString("chbpe");
+            obj = getQRCodeBean(beanJsonString);
 
         } catch (ProcessingException ex) {
-            logger.warn("Exception trying to get the response from bpe-chave service.", ex);
+            logger.warn("Exception trying to get the response from bpe-qrcode service.", ex);
+
+            String info = ex.toString();
+
+            if (ex.getCause() != null) {
+                info = ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage();
+            }
 
             return Response
                     .status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(String.format(RESPONSE_STRING_FORMAT, ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage()))
+                    .entity(String.format(RESPONSE_STRING_FORMAT, info))
                     .build();
         }
 
-        JsonObjectBuilder json = Json.createObjectBuilder();
-        json.add("chbpe", chave);
-
-        if (chave.equals("NA")) {
-            json.add("url.bpechave", bpeqrcodeURL);
-        }
-
-        return Response.ok(json.build()).build();
+        return Response.ok(obj).build();
     }
 
     @Timeout(200)
     @CircuitBreaker
-    @Fallback(fallbackMethod = "getChaveBeanFallBack")
-    private JsonObject getChaveBean(final String beanJsonString) {
+    @Fallback(fallbackMethod = "getQRCodeBeanFallBack")
+    private JsonObject getQRCodeBean(final String beanJsonString) {
         Client client = ClientBuilder.newClient();
 
         final Response response = client.target(bpeqrcodeURL)
-                .path("chave")
+                .path("qrcode")
                 .path("bean")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(beanJsonString));
@@ -89,9 +88,9 @@ public class ApiBPeQRCodeEndPoint {
         return response.readEntity(JsonObject.class);
     }
 
-    private JsonObject getChaveBeanFallBack(final String beanJsonString) {
+    private JsonObject getQRCodeBeanFallBack(final String beanJsonString) {
         JsonObjectBuilder json = Json.createObjectBuilder();
-        json.add("chbpe", "NA");
+        json.add("qrcode", "NA");
 
         return json.build();
     }

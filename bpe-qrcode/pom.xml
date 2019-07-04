@@ -34,7 +34,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>demo</finalName>
+        <finalName>bpe-qrcode</finalName>
         <plugins>
             <plugin>
                 <groupId>io.thorntail</groupId>

@@ -1,4 +1,4 @@
-package bean;
+package br.com.trevezani.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -21,19 +21,19 @@ Running the sample
 
 **bpe-api**
 
-`mvn thorntail:run -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280`
+`mvn thorntail:run -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280,-Dbpeqrcode.api.url=http://localhost:8180`
 
 or
 
-`docker run -it -p 8180:8080 -e bpechave.api.url=http://localhost:8280 --name bpe-api bpe-api:1.0.0-SNAPSHOT`
+`docker run -it -p 8180:8080 -e bpechave.api.url=http://localhost:8280 -e bpeqrcode.api.url=http://localhost:8180 --name bpe-api bpe-api:1.0.0-SNAPSHOT`
 
 **bpe-qrcode**
 
-`mvn thorntail:run -Dswarm.port.offset=100`
+`mvn thorntail:run -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280 -Dswarm.port.offset=100`
 
 or
 
-`docker run -it -p 8180:8080 --name bpe-qrcode bpe-qrcode:1.0.0-SNAPSHOT`
+`docker run -it -p 8180:8080 -e bpechave.api.url=http://localhost:8280 --name bpe-qrcode bpe-qrcode:1.0.0-SNAPSHOT`
 
 **bpe-chave**
 

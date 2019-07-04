@@ -98,7 +98,7 @@ public class BPeChaveEndPointTest {
         String beanJsonString = om.writeValueAsString(bean);
 
         final Response response = target.path("chave")
-                .path("bean")
+                .path("br.com.trevezani.bean")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(beanJsonString));
 
@@ -123,7 +123,7 @@ public class BPeChaveEndPointTest {
         String beanJsonString = om.writeValueAsString(bean);
 
         final Response response = target.path("chave")
-                .path("bean")
+                .path("br.com.trevezani.bean")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(beanJsonString));
 

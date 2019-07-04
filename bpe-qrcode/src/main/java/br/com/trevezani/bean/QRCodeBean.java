@@ -1,8 +1,9 @@
-package bean;
+package br.com.trevezani.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class ChaveBean {
+public class QRCodeBean {
+    private String ambiente;
     private String uf;
     private String emissao;
     private String documento;
@@ -12,8 +13,16 @@ public class ChaveBean {
     private String numeroDocumentoFiscal;
     private String cbp;
 
-    public ChaveBean() {
+    public QRCodeBean() {
 
+    }
+
+    public String getAmbiente() {
+        return ambiente;
+    }
+
+    public void setAmbiente(String ambiente) {
+        this.ambiente = ambiente;
     }
 
     public String getUf() {
@@ -82,26 +91,13 @@ public class ChaveBean {
 
     @JsonIgnore
     public boolean isValid() {
-        return (uf != null
+        return (ambiente != null
+                && uf != null
                 && emissao != null
                 && documento != null
                 && modelo != null
                 && serie != null
                 && tipoEmissao != null
                 && numeroDocumentoFiscal != null);
-    }
-
-    @Override
-    public String toString() {
-        return "ChaveBean{" +
-                "uf='" + uf + '\'' +
-                ", emissao='" + emissao + '\'' +
-                ", documento='" + documento + '\'' +
-                ", modelo='" + modelo + '\'' +
-                ", serie='" + serie + '\'' +
-                ", tipoEmissao='" + tipoEmissao + '\'' +
-                ", numeroDocumentoFiscal='" + numeroDocumentoFiscal + '\'' +
-                ", cbp='" + cbp + '\'' +
-                '}';
     }
 }

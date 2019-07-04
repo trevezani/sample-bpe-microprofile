@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 
 @Tag(name = "BPeChave", description = "Microserviço responsável por gerar a chave BPe")
 @ApplicationScoped
-@Path("/chave")
+@Path("chave")
 public class BPeChaveEndPoint {
     @Inject
     private BPeChaveController controller;
@@ -39,7 +39,7 @@ public class BPeChaveEndPoint {
     }
 
     @POST
-    @Path("/bean")
+    @Path("bean")
     @Operation(summary = "Gerar chave BPe via JSON")
     @APIResponse(description = "Chave BPe")
     @Produces({MediaType.APPLICATION_JSON})

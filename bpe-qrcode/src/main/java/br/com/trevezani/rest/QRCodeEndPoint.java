@@ -1,14 +1,13 @@
 package br.com.trevezani.rest;
 
-import bean.QRCodeBean;
+import br.com.trevezani.bean.ChaveBean;
+import br.com.trevezani.bean.QRCodeBean;
 import br.com.trevezani.controller.BPeQRCodeController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @ApplicationScoped
-@Path("/qrcode")
+@Path("qrcode")
 public class QRCodeEndPoint {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,7 +39,7 @@ public class QRCodeEndPoint {
     private BPeQRCodeController bpeQRCodeController;
 
     @POST
-    @Path("/bean")
+    @Path("bean")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
     public Response doGetChaveBean(QRCodeBean bean) {
@@ -48,7 +47,17 @@ public class QRCodeEndPoint {
             return Response.status(400,"Parâmetros inválidos").build();
         }
 
-        String chave = getChaveBean(bean);
+        ChaveBean chaveBean = new ChaveBean();
+        chaveBean.setUf(bean.getUf());
+        chaveBean.setEmissao(bean.getEmissao());
+        chaveBean.setDocumento(bean.getDocumento());
+        chaveBean.setModelo(bean.getModelo());
+        chaveBean.setSerie(bean.getSerie());
+        chaveBean.setTipoEmissao(bean.getTipoEmissao());
+        chaveBean.setNumeroDocumentoFiscal(bean.getNumeroDocumentoFiscal());
+        chaveBean.setCbp(bean.getCbp());
+
+        String chave = getChaveBean(chaveBean);
         String url = bpeQRCodeController.getURL(bean.getAmbiente(), bean.getUf());
 
         StringBuilder retorno = new StringBuilder();
@@ -62,7 +71,7 @@ public class QRCodeEndPoint {
         return Response.ok(json.build()).build();
     }
 
-    public String getChaveBean(QRCodeBean bean) {
+    public String getChaveBean(ChaveBean bean) {
         String chave = "NA";
         String beanJsonString = null;
 
@@ -93,7 +102,7 @@ public class QRCodeEndPoint {
         final Response response = client.target(bpechaveURL)
                 .path("chave")
                 .path("bean")
-                .request(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(beanJsonString));
 
         return response.readEntity(JsonObject.class);
