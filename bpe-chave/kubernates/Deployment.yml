@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bpe-chave
+    version: v1
+  name: bpe-chave-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bpe-chave
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: bpe-chave
+        version: v1
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTIONS
+              value: -Xms15m -Xmx15m -Xmn15m
+          name: bpe-chave
+          image: 192.168.1.110:5000/bpe-chave:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 5
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: service-registry
