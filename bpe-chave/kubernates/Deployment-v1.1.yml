@@ -3,26 +3,26 @@ kind: Deployment
 metadata:
   labels:
     app: bpe-chave
-    version: v1
-  name: bpe-chave-v1
+    version: v1.1
+  name: bpe-chave-v1.1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: bpe-chave
-      version: v1
+      version: v1.1
   template:
     metadata:
       labels:
         app: bpe-chave
-        version: v1
+        version: v1.1
     spec:
       containers:
         - env:
             - name: JAVA_OPTIONS
               value: -Xms15m -Xmx15m -Xmn15m
           name: bpe-chave
-          image: 192.168.1.110:5000/bpe-chave:v1
+          image: 192.168.1.110:5000/bpe-chave:v1.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -30,22 +30,16 @@ spec:
               protocol: TCP
           livenessProbe:
             exec:
-              command:
-                - curl
-                - -X GET
-                - http://localhost:8080/health
-            initialDelaySeconds: 3
-            periodSeconds: 5
-            timeoutSeconds: 5
+              command: ["sh", "-c", "curl -s http://localhost:8080/"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 10
           readinessProbe:
             exec:
-              command:
-                - curl
-                - -X GET
-                - http://localhost:8080/health
-            initialDelaySeconds: 3
-            periodSeconds: 5
-            timeoutSeconds: 5
+              command: ["sh", "-c", "curl -s http://localhost:8080/health"]
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            timeoutSeconds: 10
           securityContext:
             privileged: false
       imagePullSecrets:

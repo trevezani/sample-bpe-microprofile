@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bpe-api
+  labels:
+    app: bpe-api
+spec:
+  ports:
+    - name: http
+      port: 8080
+  selector:
+    app: bpe-api

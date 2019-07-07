@@ -1,0 +1,9 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bpe-ingress
+  namespace: default
+spec:
+  backend:
+    serviceName: bpe-api
+    servicePort: 8080

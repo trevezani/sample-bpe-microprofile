@@ -2,27 +2,27 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: bpe-chave
+    app: bpe-api
     version: v1
-  name: bpe-chave-v1
+  name: bpe-api-v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bpe-chave
+      app: bpe-api
       version: v1
   template:
     metadata:
       labels:
-        app: bpe-chave
+        app: bpe-api
         version: v1
     spec:
       containers:
         - env:
             - name: JAVA_OPTIONS
               value: -Xms15m -Xmx15m -Xmn15m
-          name: bpe-chave
-          image: 192.168.1.110:5000/bpe-chave:v1
+          name: bpe-api
+          image: 192.168.1.110:5000/bpe-api:v1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
