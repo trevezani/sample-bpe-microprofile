@@ -49,7 +49,7 @@ or
 
 ## Interacting with the API
 
-Recuperando uma url fixa
+Retrieving a static URL
 
 ```
 curl \
@@ -59,7 +59,7 @@ curl \
   http://192.168.64.5/api/qrcode
 ```
 
-Recuperando uma url variável
+Retrieving a dynamic URL
 
 ```
 curl \
