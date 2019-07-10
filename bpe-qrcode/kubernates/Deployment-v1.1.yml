@@ -28,21 +28,21 @@ spec:
             - containerPort: 8080
               name: http
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 40
-            periodSeconds: 10
-            timeoutSeconds: 10
-          securityContext:
-            privileged: false
+            - containerPort: 9779
+              name: prometheus
+              protocol: TCP
+        - image: jaegertracing/jaeger-agent
+          name: jaeger-agent
+          ports:
+            - containerPort: 5775
+              protocol: UDP
+            - containerPort: 6831
+              protocol: UDP
+            - containerPort: 6832
+              protocol: UDP
+            - containerPort: 5778
+              protocol: TCP
+          args: ["--collector.host-port=jaeger-collector.jaeger-infra.svc:14267"]
+      restartPolicy: Always
       imagePullSecrets:
         - name: service-registry

@@ -49,18 +49,22 @@ or
 
 ## Interacting with the API
 
-**bpe-chave**
+Recuperando uma url fixa
 
 ```
-curl
-  -X GET
-  http://localhost:8280/chave/23/20190621/68830611000/63/001/1/13/12345678
+curl \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"ambiente": "2", "uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13","cbp": "12345678"}' \
+  http://192.168.64.5/api/qrcode
 ```
 
+Recuperando uma url variável
+
 ```
-curl 
-  -H "Content-Type: application/json" 
-  -X POST 
-  -d '{"uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13","cbp": "12345678"}'
-  http://localhost:8280/chave/bean
+curl \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"ambiente": "2", "uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13"}' \
+  http://192.168.64.5/api/qrcode
 ```
