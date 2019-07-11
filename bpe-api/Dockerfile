@@ -2,6 +2,10 @@ FROM openjdk:8u212-jre-alpine
 RUN apk add --update \
     curl \
     && rm -rf /var/cache/apk/*
-EXPOSE 8080
+ENV JAEGER_SERVICE_NAME=bpe-api\
+  JAEGER_PROPAGATION=b3\
+  JAEGER_SAMPLER_TYPE=const\
+  JAEGER_SAMPLER_PARAM=1
+EXPOSE 8080 8778 9779
 ADD target/*.jar /app.jar
 CMD java -Djava.net.preferIPv4Stack=true -jar /app.jar
