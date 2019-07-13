@@ -1,0 +1,83 @@
+version: '3'
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.8
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.10
+
+  mp-bpe-api:
+    image: bpe-api:1.0.0-SNAPSHOT
+    ports:
+      - "8080:8080"
+      - "5000:5006"
+    depends_on:
+      - jaeger
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.11
+    links:
+      - jaeger
+    environment:
+      - bpeqrcode.api.url=http://mp-bpe-qrcode:8080
+      - bpechave.api.url=http://mp-bpe-chave:8080
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_SERVICE_NAME=bpe-api
+      - JAEGER_REPORTER_LOG_SPANS=true
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+  mp-bpe-qrcode:
+    image: bpe-qrcode:1.0.0-SNAPSHOT
+    ports:
+      - "8081:8080"
+      - "5001:5006"
+    depends_on:
+      - jaeger
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.12
+    links:
+      - jaeger
+    environment:
+      - bpechave.api.url=http://mp-bpe-chave:8080
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_SERVICE_NAME=bpe-qrcode
+      - JAEGER_REPORTER_LOG_SPANS=true
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+  mp-bpe-chave:
+    image: bpe-chave:1.0.0-SNAPSHOT
+    ports:
+      - "8082:8080"
+      - "5002:5006"
+    depends_on:
+      - jaeger
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.13
+    links:
+      - jaeger
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_SERVICE_NAME=bpe-chave
+      - JAEGER_REPORTER_LOG_SPANS=true
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+
+
+networks:
+  mp-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16

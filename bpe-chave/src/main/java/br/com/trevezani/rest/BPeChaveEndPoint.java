@@ -5,6 +5,7 @@ import br.com.trevezani.controller.BPeChaveController;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.opentracing.Traced;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.Response;
 @Tag(name = "BPeChave", description = "Microserviço responsável por gerar a chave BPe")
 @ApplicationScoped
 @Path("chave")
+@Traced
 public class BPeChaveEndPoint {
     @Inject
     private BPeChaveController controller;

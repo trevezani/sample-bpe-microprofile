@@ -8,6 +8,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
+import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 @Path("qrcode")
+@Traced
 public class QRCodeEndPoint {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -97,7 +100,7 @@ public class QRCodeEndPoint {
     @CircuitBreaker
     @Fallback(fallbackMethod = "getChaveBeanFallBack")
     private JsonObject getChaveBean(final String beanJsonString) {
-        Client client = ClientBuilder.newClient();
+        Client client = ClientTracingRegistrar.configure(ClientBuilder.newBuilder()).build();
 
         final Response response = client.target(bpechaveURL)
                 .path("chave")

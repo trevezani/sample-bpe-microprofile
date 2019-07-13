@@ -6,6 +6,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
+import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,7 @@ import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 @Path("/")
+@Traced
 public class ApiBPeQRCodeEndPoint {
     private static final String RESPONSE_STRING_FORMAT = "base-api => %s\n";
     private static final ObjectMapper om = new ObjectMapper();
@@ -77,7 +80,7 @@ public class ApiBPeQRCodeEndPoint {
     @CircuitBreaker
     @Fallback(fallbackMethod = "getQRCodeBeanFallBack")
     private JsonObject getQRCodeBean(final String beanJsonString) {
-        Client client = ClientBuilder.newClient();
+        Client client = ClientTracingRegistrar.configure(ClientBuilder.newBuilder()).build();
 
         final Response response = client.target(bpeqrcodeURL)
                 .path("qrcode")

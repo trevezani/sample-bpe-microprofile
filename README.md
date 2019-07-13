@@ -25,7 +25,7 @@ Running the sample
 
 or
 
-`docker run -it -p 8180:8080 -e bpechave.api.url=http://localhost:8280 -e bpeqrcode.api.url=http://localhost:8180 --name bpe-api bpe-api:1.0.0-SNAPSHOT`
+`docker run -it -p 8080:8080 -e bpechave.api.url=http://localhost:8280 -e bpeqrcode.api.url=http://localhost:8180 --name bpe-api bpe-api:1.0.0-SNAPSHOT`
 
 **bpe-qrcode**
 
