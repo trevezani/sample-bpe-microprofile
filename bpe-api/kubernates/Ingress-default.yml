@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: bpe-ingress
-  namespace: default
+  namespace: bpe
 spec:
   backend:
     serviceName: bpe-api

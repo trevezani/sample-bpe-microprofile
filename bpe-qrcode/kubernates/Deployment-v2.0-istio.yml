@@ -3,46 +3,41 @@ kind: Deployment
 metadata:
   labels:
     app: bpe-qrcode
-    version: v1.1
-  name: bpe-qrcode-v1.1
+    version: v2.0
+  name: bpe-qrcode-v2.0
+  namespace: bpe
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: bpe-qrcode
-      version: v1.1
+      version: v2.0
   template:
     metadata:
       labels:
         app: bpe-qrcode
-        version: v1.1
+        version: v2.0
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - env:
             - name: JAVA_OPTIONS
               value: -Xms15m -Xmx15m -Xmn15m
-          name: bpe-qrcode
-          image: 192.168.1.110:5000/bpe-qrcode:v1.1
+          name: bpe-api
+          image: 192.168.1.110:5000/bpe-qrcode:v2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
             - containerPort: 9779
               name: prometheus
               protocol: TCP
-        - image: jaegertracing/jaeger-agent
-          name: jaeger-agent
-          ports:
-            - containerPort: 5775
-              protocol: UDP
-            - containerPort: 6831
-              protocol: UDP
-            - containerPort: 6832
-              protocol: UDP
-            - containerPort: 5778
-              protocol: TCP
-          args: ["--collector.host-port=jaeger-collector.jaeger-infra.svc:14267"]
-      restartPolicy: Always
+          securityContext:
+            privileged: false
       imagePullSecrets:
         - name: service-registry

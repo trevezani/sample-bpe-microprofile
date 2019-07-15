@@ -6,6 +6,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
 import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
@@ -37,6 +39,8 @@ public class ApiBPeChaveEndPoint {
     private String bpechaveURL;
 
     @POST
+    @Counted(monotonic = true, name = "bpeapi-bpechave-count", absolute = true)
+    @Timed(name = "bpeapi-bpechave-time", absolute = true)
     @Path("chave")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)

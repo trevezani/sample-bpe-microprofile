@@ -8,6 +8,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
 import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
@@ -42,10 +44,12 @@ public class QRCodeEndPoint {
     private BPeQRCodeController bpeQRCodeController;
 
     @POST
+    @Counted(monotonic = true, name = "bpeqrcode-count", absolute = true)
+    @Timed(name = "bpeqrcode-time", absolute = true)
     @Path("bean")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response doGetChaveBean(QRCodeBean bean) {
+    public Response doGetQRCode(QRCodeBean bean) {
         if (!bean.isValid()) {
             return Response.status(400,"Parâmetros inválidos").build();
         }

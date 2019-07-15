@@ -2,6 +2,8 @@ package br.com.trevezani.rest;
 
 import br.com.trevezani.bean.ChaveBean;
 import br.com.trevezani.controller.BPeChaveController;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -24,6 +26,8 @@ public class BPeChaveEndPoint {
     private BPeChaveController controller;
 
     @GET
+    @Counted(monotonic = true, name = "bpechave-count", absolute = true)
+    @Timed(name = "bpechave-time", absolute = true)
     @Operation(summary = "Gerar chave BPe")
     @APIResponse(description = "Chave BPe")
     @Path("/{uf}/{emissao}/{documento}/{modelo}/{serie}/{tipoEmissao}/{numeroDocumentoFiscal}/{cbp}")
@@ -41,6 +45,8 @@ public class BPeChaveEndPoint {
     }
 
     @POST
+    @Counted(monotonic = true, name = "bpechave-count", absolute = true)
+    @Timed(name = "bpechave-time", absolute = true)
     @Path("bean")
     @Operation(summary = "Gerar chave BPe via JSON")
     @APIResponse(description = "Chave BPe")
