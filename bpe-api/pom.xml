@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com.trevezani</groupId>
     <artifactId>bpe-api</artifactId>
     <name>BPe API</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>war</packaging>
 
     <properties>
@@ -51,9 +50,9 @@
                     <properties>
                         <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
                     </properties>
-<!--                    <jvmArguments>-->
-<!--                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArgument>-->
-<!--                    </jvmArguments>-->
+                    <jvmArguments>
+                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArgument>
+                    </jvmArguments>
                 </configuration>
             </plugin>
             <plugin>

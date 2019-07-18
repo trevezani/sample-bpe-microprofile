@@ -37,6 +37,22 @@ spec:
             - containerPort: 9779
               name: prometheus
               protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8080/health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8080/health
+            initialDelaySeconds: 10
+            periodSeconds: 10
           securityContext:
             privileged: false
       imagePullSecrets:

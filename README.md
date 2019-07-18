@@ -18,6 +18,15 @@ Generating the image
 
 `mvn clean package docker:build`
 
+Generating the image and push them
+
+`mvn -Ddocker.registry=<url>:5000 -Ddocker.username=<user> -Ddocker.password=<password> clean package docker:build docker:push`
+
+Remove the image
+
+`mvn docker:remove`
+
+
 ## Running the sample
 
 **bpe-api**
