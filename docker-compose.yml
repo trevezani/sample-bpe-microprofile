@@ -17,7 +17,7 @@ services:
         ipv4_address: 172.18.0.10
 
   mp-bpe-api:
-    image: bpe-api:1.0.0-SNAPSHOT
+    image: bpe-api:1.0.0
     ports:
       - "8080:8080"
       - "5000:5006"
@@ -37,7 +37,7 @@ services:
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
   mp-bpe-qrcode:
-    image: bpe-qrcode:1.0.0-SNAPSHOT
+    image: bpe-qrcode:1.0.0
     ports:
       - "8081:8080"
       - "5001:5006"
@@ -56,7 +56,7 @@ services:
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
   mp-bpe-chave:
-    image: bpe-chave:1.0.0-SNAPSHOT
+    image: bpe-chave:1.0.0
     ports:
       - "8082:8080"
       - "5002:5006"

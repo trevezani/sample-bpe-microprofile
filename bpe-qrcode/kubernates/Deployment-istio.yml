@@ -2,21 +2,21 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: bpe-api
-    version: v2.0
-  name: bpe-api-v2.0
+    app: bpe-qrcode
+    version: 1.0.0
+  name: bpe-qrcode-1.0.0
   namespace: bpe
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bpe-api
-      version: v2.0
+      app: bpe-qrcode
+      version: 1.0.0
   template:
     metadata:
       labels:
-        app: bpe-api
-        version: v2.0
+        app: bpe-qrcode
+        version: 1.0.0
       annotations:
         sidecar.istio.io/inject: "true"
     spec:
@@ -25,7 +25,7 @@ spec:
             - name: JAVA_OPTIONS
               value: -Xms15m -Xmx15m -Xmn15m
           name: bpe-api
-          image: 192.168.1.110:5000/bpe-api:v2.0
+          image: 192.168.1.103:5000/bpe-qrcode:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -37,22 +37,6 @@ spec:
             - containerPort: 9779
               name: prometheus
               protocol: TCP
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - -f
-                - http://localhost:8080/health
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          readinessProbe:
-            exec:
-              command:
-                - curl
-                - -f
-                - http://localhost:8080/health
-            initialDelaySeconds: 10
-            periodSeconds: 10
           securityContext:
             privileged: false
       imagePullSecrets:

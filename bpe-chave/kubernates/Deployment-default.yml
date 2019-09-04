@@ -2,28 +2,28 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: bpe-qrcode
-    version: v1.0
-  name: bpe-qrcode-v1.0
+    app: bpe-chave
+    version: 1.0.0
+  name: bpe-chave-1.0.0
   namespace: bpe
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bpe-qrcode
-      version: v1.0
+      app: bpe-chave
+      version: 1.0.0
   template:
     metadata:
       labels:
-        app: bpe-qrcode
-        version: v1.0
+        app: bpe-chave
+        version: 1.0.0
     spec:
       containers:
         - env:
             - name: JAVA_OPTIONS
               value: -Xms15m -Xmx15m -Xmn15m
-          name: bpe-qrcode
-          image: 192.168.1.110:5000/bpe-qrcode:v1.0
+          name: bpe-chave
+          image: <local ip>:5000/bpe-chave:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
