@@ -25,7 +25,7 @@ spec:
             - name: JAVA_OPTIONS
               value: -Xms15m -Xmx15m -Xmn15m
           name: bpe-api
-          image: 192.168.1.103:5000/bpe-chave:1.0.0
+          image: <local ip>:5000/bpe-chave:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
