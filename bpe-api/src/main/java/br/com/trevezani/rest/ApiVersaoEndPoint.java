@@ -21,7 +21,7 @@ public class ApiVersaoEndPoint {
     @Produces({MediaType.APPLICATION_JSON})
     public Response doGetversao() {
         JsonObjectBuilder json = Json.createObjectBuilder();
-        json.add("versao", "1.00");
+        json.add("versao", "1.0.1");
 
         return Response.ok(json.build()).build();
     }

@@ -8,6 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.opentracing.Traced;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,6 +24,10 @@ import javax.ws.rs.core.Response;
 @Path("chave")
 @Traced
 public class BPeChaveEndPoint {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private static final String servicename = "bpe-chave";
+
     @Inject
     private BPeChaveController controller;
 
@@ -52,9 +58,18 @@ public class BPeChaveEndPoint {
     @APIResponse(description = "Chave BPe")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response doGetChaveBean(ChaveBean bean) {
+    public Response doGetChaveBean(@HeaderParam("x-correlation-id") String correlationId, ChaveBean bean) {
+        final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
         if (!bean.isValid()) {
-            return Response.status(400,"Parâmetros inválidos").build();
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("info", "Parâmetros inválidos");
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.error(jsonBuilder.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
 
         String chave = controller.getChaveBPe( bean.getUf(), bean.getEmissao(), bean.getDocumento(), bean.getModelo(),
@@ -62,6 +77,8 @@ public class BPeChaveEndPoint {
 
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("chbpe", chave);
+
+        logger.info(String.format("[%s] Key generated %s", correlationId, chave));
 
         return Response.ok(json.build()).build();
     }

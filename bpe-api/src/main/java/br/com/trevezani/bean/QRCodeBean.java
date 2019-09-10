@@ -100,4 +100,19 @@ public class QRCodeBean {
                 && tipoEmissao != null
                 && numeroDocumentoFiscal != null);
     }
+
+    @Override
+    public String toString() {
+        return "QRCodeBean{" +
+                "ambiente='" + ambiente + '\'' +
+                ", uf='" + uf + '\'' +
+                ", emissao='" + emissao + '\'' +
+                ", documento='" + documento + '\'' +
+                ", modelo='" + modelo + '\'' +
+                ", serie='" + serie + '\'' +
+                ", tipoEmissao='" + tipoEmissao + '\'' +
+                ", numeroDocumentoFiscal='" + numeroDocumentoFiscal + '\'' +
+                ", cbp='" + cbp + '\'' +
+                '}';
+    }
 }

@@ -4,7 +4,7 @@
     <groupId>br.com.trevezani</groupId>
     <artifactId>bpe-api</artifactId>
     <name>BPe API</name>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <packaging>war</packaging>
 
     <properties>
@@ -50,9 +50,9 @@
                     <properties>
                         <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
                     </properties>
-                    <jvmArguments>
-                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArgument>
-                    </jvmArguments>
+<!--                    <jvmArguments>-->
+<!--                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006</jvmArgument>-->
+<!--                    </jvmArguments>-->
                 </configuration>
             </plugin>
             <plugin>

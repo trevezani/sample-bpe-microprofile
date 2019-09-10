@@ -122,6 +122,30 @@ kubectl create -f bpe-qrcode/kubernates/Service.yml
 `kubectl describe pod bpe-api-1.0.0 --namespace=bpe`
 
 
+**EFK**
+
+```
+kubectl create namespace logging
+
+kubectl create -f kubernetes/logging/elastic.yaml -n logging
+kubectl get pods -n logging
+kubectl get service -n logging
+
+# port different of 9200 in kubectl get service -n logging
+curl $(minikube ip):32326
+
+kubectl create -f kubernetes/logging/kibana.yaml -n logging
+kubectl get pods -n logging
+kubectl get service -n logging
+
+kubectl create -f kubernetes/logging/fluentd-rbac.yaml
+kubectl create -f kubernetes/logging/fluentd-daemonset.yaml
+kubectl get pods -n kube-system
+kubectl logs fluentd-????? -n kube-system
+
+echo "Kibana URL: $(minikube ip):port of kibana"
+```
+
 **Tools**
 
 Jaeger

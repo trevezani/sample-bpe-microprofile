@@ -1,6 +1,7 @@
 package br.com.trevezani.rest;
 
 import br.com.trevezani.bean.ChaveBean;
+import br.com.trevezani.util.CorrelationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
@@ -31,8 +32,11 @@ import javax.ws.rs.core.Response;
 public class ApiBPeChaveEndPoint {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String RESPONSE_STRING_FORMAT = "bpe-api => %s\n";
+    private static final String servicename = "bpe-api";
     private static final ObjectMapper om = new ObjectMapper();
+
+    @Inject
+    private CorrelationUtils correlationUtils;
 
     @Inject
     @ConfigProperty(name = "bpechave.api.url", defaultValue = "http://bpe-chave:8080/")
@@ -45,8 +49,19 @@ public class ApiBPeChaveEndPoint {
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
     public Response doGetChaveBean(ChaveBean bean) {
+        String correlationId = correlationUtils.getCorrelationId();
+
+        final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
         if (!bean.isValid()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Parâmetros inválidos").build();
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("info", "Parâmetros inválidos");
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.error(jsonBuilder.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
 
         String chave = "NA";
@@ -55,24 +70,44 @@ public class ApiBPeChaveEndPoint {
         try {
             beanJsonString = om.writeValueAsString(bean);
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("exception", e.toString());
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.error(jsonBuilder.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
 
         try {
-            JsonObject obj = getChaveBean(beanJsonString);
+            JsonObject obj = getChaveBean(correlationId, beanJsonString);
             chave = obj.getString("chbpe");
 
         } catch (ProcessingException ex) {
-            logger.warn("Exception trying to get the response from bpe-chave service.", ex);
+            String info = ex.toString();
+
+            if (ex.getCause() != null) {
+                info = ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage();
+            }
+
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("info", "Exception trying to get the response from bpe-chave service");
+            jsonBuilder.add("exception", info);
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.warn(jsonBuilder.toString(), ex);
 
             return Response
                     .status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(String.format(RESPONSE_STRING_FORMAT, ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage()))
+                    .entity(jsonBuilder.build())
                     .build();
         }
 
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("chbpe", chave);
+        json.add("correlation-id", correlationId);
 
         if (chave.equals("NA")) {
             json.add("url.bpechave", bpechaveURL);
@@ -84,20 +119,24 @@ public class ApiBPeChaveEndPoint {
     @Timeout(200)
     @CircuitBreaker
     @Fallback(fallbackMethod = "getChaveBeanFallBack")
-    private JsonObject getChaveBean(final String beanJsonString) {
+    private JsonObject getChaveBean(final String correlationId, final String beanJsonString) {
+        logger.info(String.format("[%s] Calling %s JSON %s", correlationId, bpechaveURL, beanJsonString));
+
         Client client = ClientTracingRegistrar.configure(ClientBuilder.newBuilder()).build();
 
         final Response response = client.target(bpechaveURL)
                 .path("chave")
                 .path("bean")
                 .request(MediaType.APPLICATION_JSON_TYPE)
+                .header("x-correlation-id", correlationUtils.getCorrelationId())
                 .post(Entity.json(beanJsonString));
 
         return response.readEntity(JsonObject.class);
     }
 
-    private JsonObject getChaveBeanFallBack(final String beanJsonString) {
+    private JsonObject getChaveBeanFallBack(final String correlationId, final String beanJsonString) {
         JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("correlation-id", correlationId);
         json.add("chbpe", "NA");
 
         return json.build();

@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response;
 public class QRCodeEndPoint {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String RESPONSE_STRING_FORMAT = "bpe-qrcode => %s\n";
+    private static final String servicename = "bpe-qrcode";
     private static final ObjectMapper om = new ObjectMapper();
 
     @Inject
@@ -49,9 +49,18 @@ public class QRCodeEndPoint {
     @Path("bean")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response doGetQRCode(QRCodeBean bean) {
+    public Response doGetQRCode(@HeaderParam("x-correlation-id") String correlationId, QRCodeBean bean) {
+        final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
         if (!bean.isValid()) {
-            return Response.status(400,"Parâmetros inválidos").build();
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("info", "Parâmetros inválidos");
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.error(jsonBuilder.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
 
         ChaveBean chaveBean = new ChaveBean();
@@ -64,7 +73,7 @@ public class QRCodeEndPoint {
         chaveBean.setNumeroDocumentoFiscal(bean.getNumeroDocumentoFiscal());
         chaveBean.setCbp(bean.getCbp());
 
-        String chave = getChaveBean(chaveBean);
+        String chave = getChaveBean(correlationId, chaveBean);
         String url = bpeQRCodeController.getURL(bean.getAmbiente(), bean.getUf());
 
         StringBuilder retorno = new StringBuilder();
@@ -78,23 +87,43 @@ public class QRCodeEndPoint {
         return Response.ok(json.build()).build();
     }
 
-    public String getChaveBean(ChaveBean bean) {
+    public String getChaveBean(final String correlationId, ChaveBean bean) {
+        final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
         String chave = "NA";
         String beanJsonString = null;
 
         try {
             beanJsonString = om.writeValueAsString(bean);
         } catch (Exception ex) {
-            logger.warn(ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage(), ex);
+            String info = ex.toString();
+
+            if (ex.getCause() != null) {
+                info = ex.getCause().getClass().getSimpleName() + ": " + ex.getCause().getMessage();
+            }
+
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("exception", info);
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.warn(jsonBuilder.toString(), ex);
+
             return "NA";
         }
 
         try {
-            JsonObject obj = getChaveBean(beanJsonString);
+            JsonObject obj = getChaveBean(correlationId, beanJsonString);
             chave = obj.getString("chbpe");
 
         } catch (ProcessingException ex) {
-            logger.warn("Exception trying to get the response from bpe-chave service.", ex);
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("info", "Exception trying to get the response from bpe-chave service");
+            jsonBuilder.add("exception", ex.toString());
+            jsonBuilder.add("bean", bean.toString());
+
+            logger.warn(jsonBuilder.toString(), ex);
         }
 
         return chave;
@@ -103,21 +132,25 @@ public class QRCodeEndPoint {
     @Timeout(200)
     @CircuitBreaker
     @Fallback(fallbackMethod = "getChaveBeanFallBack")
-    private JsonObject getChaveBean(final String beanJsonString) {
+    private JsonObject getChaveBean(final String correlationId, final String beanJsonString) {
+        logger.info(String.format("[%s] Calling %s JSON %s", correlationId, bpechaveURL, beanJsonString));
+
         Client client = ClientTracingRegistrar.configure(ClientBuilder.newBuilder()).build();
 
         final Response response = client.target(bpechaveURL)
                 .path("chave")
                 .path("bean")
                 .request(MediaType.APPLICATION_JSON)
+                .header("x-correlation-id", correlationId)
                 .post(Entity.json(beanJsonString));
 
         return response.readEntity(JsonObject.class);
     }
 
-    private JsonObject getChaveBeanFallBack(final String beanJsonString) {
+    private JsonObject getChaveBeanFallBack(final String correlationId, final String beanJsonString) {
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("chbpe", "NA");
+        json.add("correlation-id", correlationId);
 
         return json.build();
     }

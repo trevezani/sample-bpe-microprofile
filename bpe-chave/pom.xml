@@ -5,7 +5,7 @@
     <groupId>br.com.trevezani</groupId>
     <artifactId>bpe-chave</artifactId>
     <name>BPe Chave</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>war</packaging>
 
     <properties>
@@ -139,6 +139,10 @@
         <dependency>
             <groupId>io.thorntail</groupId>
             <artifactId>microprofile-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>fluentd</artifactId>
         </dependency>
         <dependency>
             <groupId>io.thorntail</groupId>
