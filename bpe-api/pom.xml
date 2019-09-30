@@ -4,7 +4,7 @@
     <groupId>br.com.trevezani</groupId>
     <artifactId>bpe-api</artifactId>
     <name>BPe API</name>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>war</packaging>
 
     <properties>
@@ -53,6 +53,18 @@
 <!--                    <jvmArguments>-->
 <!--                        <jvmArgument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006</jvmArgument>-->
 <!--                    </jvmArguments>-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.3</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>

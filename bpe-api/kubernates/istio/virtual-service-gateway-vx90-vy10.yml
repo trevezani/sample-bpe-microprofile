@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: bpe-gateway
+  namespace: bpe
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - bpe-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api
+      route:
+        - destination:
+            host: bpe-api
+            subset: v2
+            port:
+              number: 8080
+          weight: 90
+        - destination:
+            host: bpe-api
+            subset: v3
+            port:
+              number: 8080
+          weight: 10
