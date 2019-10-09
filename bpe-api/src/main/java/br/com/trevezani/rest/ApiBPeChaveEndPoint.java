@@ -56,10 +56,10 @@ public class ApiBPeChaveEndPoint {
         if (!bean.isValid()) {
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
-            jsonBuilder.add("info", "Parâmetros inválidos");
+            jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.toString());
+            logger.error(jsonBuilder.build().toString());
 
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
@@ -75,7 +75,7 @@ public class ApiBPeChaveEndPoint {
             jsonBuilder.add("exception", e.toString());
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.toString());
+            logger.error(jsonBuilder.build().toString());
 
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
@@ -93,11 +93,11 @@ public class ApiBPeChaveEndPoint {
 
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
-            jsonBuilder.add("info", "Exception trying to get the response from bpe-chave service");
+            jsonBuilder.add("message", "Exception trying to get the response from bpe-chave service");
             jsonBuilder.add("exception", info);
             jsonBuilder.add("bean", bean.toString());
 
-            logger.warn(jsonBuilder.toString(), ex);
+            logger.error(jsonBuilder.build().toString(), ex);
 
             return Response
                     .status(Response.Status.SERVICE_UNAVAILABLE)
@@ -120,7 +120,13 @@ public class ApiBPeChaveEndPoint {
     @CircuitBreaker
     @Fallback(fallbackMethod = "getChaveBeanFallBack")
     private JsonObject getChaveBean(final String correlationId, final String beanJsonString) {
-        logger.info(String.format("[%s] Calling %s JSON %s", correlationId, bpechaveURL, beanJsonString));
+        final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+        jsonBuilder.add("app", servicename);
+        jsonBuilder.add("correlation-id", correlationId);
+        jsonBuilder.add("message", String.format("Calling %s", bpechaveURL));
+        jsonBuilder.add("bean", beanJsonString);
+
+        logger.info(jsonBuilder.build().toString());
 
         Client client = ClientTracingRegistrar.configure(ClientBuilder.newBuilder()).build();
 

@@ -64,10 +64,10 @@ public class BPeChaveEndPoint {
         if (!bean.isValid()) {
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
-            jsonBuilder.add("info", "Parâmetros inválidos");
+            jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.toString());
+            logger.error(jsonBuilder.build().toString());
 
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }

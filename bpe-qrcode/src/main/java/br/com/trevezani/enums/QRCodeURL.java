@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public enum QRCodeURL {
     CE("23", "https://dfe-portal.svrs.rs.gov.br/bpe/qrCode", "https://dfe-portal.sefazvirtual.rs.gov.br/bpe/qrcode"),
+    RN("24", "https://dfe-portal.svrs.rs.gov.br/bpe/qrCode", "https://dfe-portal.sefazvirtual.rs.gov.br/bpe/qrcode"),
     MG("31", "https://bpe.fazenda.mg.gov.br/portalbpe/sistema/qrcode.xhtml", "https://bpe.fazenda.mg.gov.br/portalbpe/sistema/qrcode.xhtml");
 
     String uf;

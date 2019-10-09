@@ -14,10 +14,57 @@ services:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
     networks:
       mp-net:
-        ipv4_address: 172.18.0.10
+        ipv4_address: 172.18.0.5
+
+  agreggrator:
+    build: ./logging/local/fluentd
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./logging/local/fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.6
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    user: 'elasticsearch'
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.7
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.3.2
+    links:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      mp-net:
+        ipv4_address: 172.18.0.8
 
   mp-bpe-api:
-    image: bpe-api:1.0.1
+    image: bpe-api:1.0.5
     ports:
       - "8080:8080"
       - "5010:5006"
@@ -36,8 +83,9 @@ services:
       - JAEGER_REPORTER_LOG_SPANS=true
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
+      - thorntail.fluentd.hostname=172.18.0.6
   mp-bpe-qrcode:
-    image: bpe-qrcode:1.0.1
+    image: bpe-qrcode:1.0.5
     ports:
       - "8081:8080"
       - "5011:5006"
@@ -55,8 +103,9 @@ services:
       - JAEGER_REPORTER_LOG_SPANS=true
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
+      - thorntail.fluentd.hostname=172.18.0.6
   mp-bpe-chave:
-    image: bpe-chave:1.0.1
+    image: bpe-chave:1.0.5
     ports:
       - "8082:8080"
       - "5012:5006"
@@ -73,7 +122,10 @@ services:
       - JAEGER_REPORTER_LOG_SPANS=true
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
+      - thorntail.fluentd.hostname=172.18.0.6
 
+volumes:
+  elasticsearch-data:
 
 networks:
   mp-net:

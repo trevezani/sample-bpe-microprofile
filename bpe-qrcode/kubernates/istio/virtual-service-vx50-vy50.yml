@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: bpe-qrcode
+spec:
+  hosts:
+    - bpe-qrcode
+  http:
+    - route:
+        - destination:
+            host: bpe-qrcode
+            subset: v1
+          weight: 50
+        - destination:
+            host: bpe-qrcode
+            subset: v2
+          weight: 50
+---

@@ -55,10 +55,10 @@ public class QRCodeEndPoint {
         if (!bean.isValid()) {
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
-            jsonBuilder.add("info", "Parâmetros inválidos");
+            jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.toString());
+            logger.error(jsonBuilder.build().toString());
 
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
         }
@@ -74,7 +74,19 @@ public class QRCodeEndPoint {
         chaveBean.setCbp(bean.getCbp());
 
         String chave = getChaveBean(correlationId, chaveBean);
-        String url = bpeQRCodeController.getURL(bean.getAmbiente(), bean.getUf());
+        String url = null;
+
+        try {
+            url = bpeQRCodeController.getURL(bean.getAmbiente(), bean.getUf());
+        }  catch (Exception ex) {
+            jsonBuilder.add("app", servicename);
+            jsonBuilder.add("correlation-id", correlationId);
+            jsonBuilder.add("exception", ex.toString());
+
+            logger.error(jsonBuilder.build().toString(), ex);
+
+            return Response.serverError().entity(jsonBuilder.build()).build();
+        }
 
         StringBuilder retorno = new StringBuilder();
         retorno.append(url);
@@ -107,7 +119,7 @@ public class QRCodeEndPoint {
             jsonBuilder.add("exception", info);
             jsonBuilder.add("bean", bean.toString());
 
-            logger.warn(jsonBuilder.toString(), ex);
+            logger.warn(jsonBuilder.build().toString(), ex);
 
             return "NA";
         }
@@ -119,11 +131,11 @@ public class QRCodeEndPoint {
         } catch (ProcessingException ex) {
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
-            jsonBuilder.add("info", "Exception trying to get the response from bpe-chave service");
+            jsonBuilder.add("message", "Exception trying to get the response from bpe-chave service");
             jsonBuilder.add("exception", ex.toString());
             jsonBuilder.add("bean", bean.toString());
 
-            logger.warn(jsonBuilder.toString(), ex);
+            logger.warn(jsonBuilder.build().toString(), ex);
         }
 
         return chave;

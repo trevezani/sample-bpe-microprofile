@@ -3,3 +3,8 @@ thorntail:
     service-name: bpe-api
     sampler-type: const
     sampler-parameter: 1
+  fluentd:
+    hostname: localhost
+    level: INFO
+    port: 24224
+    tag: bpe-api
