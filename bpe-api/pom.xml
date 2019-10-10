@@ -4,7 +4,7 @@
     <groupId>br.com.trevezani</groupId>
     <artifactId>bpe-api</artifactId>
     <name>BPe API</name>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packaging>war</packaging>
 
     <properties>

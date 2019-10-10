@@ -5,7 +5,7 @@
     <groupId>br.com.trevezani</groupId>
     <artifactId>bpe-chave</artifactId>
     <name>BPe Chave</name>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packaging>war</packaging>
 
     <properties>

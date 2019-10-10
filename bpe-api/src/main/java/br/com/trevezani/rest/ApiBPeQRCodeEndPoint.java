@@ -54,15 +54,19 @@ public class ApiBPeQRCodeEndPoint {
 
         final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
 
+        JsonObject obj = null;
+
         if (!bean.isValid()) {
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
             jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.build().toString());
+            obj = jsonBuilder.build();
 
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
+            logger.error(obj.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(obj).build();
         }
 
         String beanJsonString = null;
@@ -75,12 +79,12 @@ public class ApiBPeQRCodeEndPoint {
             jsonBuilder.add("exception", e.toString());
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.build().toString());
+            obj = jsonBuilder.build();
 
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
+            logger.error(obj.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(obj).build();
         }
-
-        JsonObject obj = null;
 
         try {
             obj = getQRCodeBean(correlationId, beanJsonString);
@@ -102,11 +106,13 @@ public class ApiBPeQRCodeEndPoint {
             jsonBuilder.add("exception", info);
             jsonBuilder.add("bean", bean.toString());
 
-            logger.warn(jsonBuilder.build().toString(), ex);
+            obj = jsonBuilder.build();
+
+            logger.warn(obj.toString(), ex);
 
             return Response
                     .status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(jsonBuilder.build())
+                    .entity(obj)
                     .build();
         }
 

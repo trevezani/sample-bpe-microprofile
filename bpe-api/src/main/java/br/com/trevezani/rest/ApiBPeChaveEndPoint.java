@@ -53,15 +53,19 @@ public class ApiBPeChaveEndPoint {
 
         final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
 
+        JsonObject obj = null;
+
         if (!bean.isValid()) {
             jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
             jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.build().toString());
+            obj = jsonBuilder.build();
 
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
+            logger.error(obj.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(obj).build();
         }
 
         String chave = "NA";
@@ -75,13 +79,15 @@ public class ApiBPeChaveEndPoint {
             jsonBuilder.add("exception", e.toString());
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.build().toString());
+            obj = jsonBuilder.build();
 
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
+            logger.error(obj.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(obj).build();
         }
 
         try {
-            JsonObject obj = getChaveBean(correlationId, beanJsonString);
+            obj = getChaveBean(correlationId, beanJsonString);
             chave = obj.getString("chbpe");
 
         } catch (ProcessingException ex) {
@@ -97,11 +103,13 @@ public class ApiBPeChaveEndPoint {
             jsonBuilder.add("exception", info);
             jsonBuilder.add("bean", bean.toString());
 
-            logger.error(jsonBuilder.build().toString(), ex);
+            obj = jsonBuilder.build();
+
+            logger.error(obj.toString(), ex);
 
             return Response
                     .status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(jsonBuilder.build())
+                    .entity(obj)
                     .build();
         }
 
