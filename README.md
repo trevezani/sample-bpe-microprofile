@@ -1,5 +1,5 @@
 # sample-bpe-microprofile
-Part of the BPe responsible for generating the key and the URL of the QRCode
+A sample of the BPe responsible for generating the key and the URL of the QRCode
 
 
 ## General
@@ -27,6 +27,10 @@ Remove the image
 
 `mvn thorntail:run -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280,-Dbpeqrcode.api.url=http://localhost:8180`
 
+Debugging
+
+`mvn thorntail:run -Dthorntail.debug.port=5006 -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280,-Dbpeqrcode.api.url=http://localhost:8180`
+
 **bpe-qrcode**
 
 `mvn thorntail:run -Dthorntail.jvmArguments=-Dbpechave.api.url=http://localhost:8280 -Dswarm.port.offset=100`
@@ -35,14 +39,32 @@ Remove the image
 
 `mvn thorntail:run -Dswarm.port.offset=200`
 
-or
+or inside the directory extra/test
 
-`docker-compose up`
+`docker-compose up --build`
 
 
 **Jaeger Traicing**
 
 [http://localhost:16686/](http://localhost:16686/)
+
+**Kibana**
+
+[http://localhost:5601/](http://localhost:5601/)
+
+**Testing the API**
+
+QRCode
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{"ambiente": "2", "uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13"}' http://localhost:8080/api/qrcode
+```
+
+Chave
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{"uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13"}' http://localhost:8080/api/chave
+```
 
 
 ## Kubernates
@@ -62,17 +84,26 @@ Generating the image and push them
 `mvn -Ddocker.registry=localhost:5000 -Ddocker.username=admin -Ddocker.password=admin clean package docker:build docker:push`
 
 
+**Registry UI**
+
+Viewer for the images present in the Registry
+
+[https://github.com/jc21/docker-registry-ui](https://github.com/jc21/docker-registry-ui)
+
+
 **Minikube/Istio**
 
-```
-echo "Local IP: $(ipconfig getifaddr en0)"
+Starting the Minikube
 
+```
 minikube start --memory=8192 --cpus=4 --vm-driver=hyperkit --kubernetes-version=v1.14.0 --disk-size=30GB --insecure-registry='0.0.0.0/0'
 minikube addons list
 minikube addons enable heapster
 minikube addons enable metrics-server
 minikube addons enable ingress
 ```
+
+Installing the Istio
 
 ```
 # Istio 1.2.25
@@ -84,26 +115,57 @@ export PATH=$PWD/bin:$PATH
 for i in install/kubernetes/helm/istio-init/files/crd*yaml; do kubectl apply -f $i; done
 kubectl apply -f install/kubernetes/istio-demo.yaml
 
-# delete
+# uninstall
 kubectl delete -f install/kubernetes/istio-demo.yaml
 for i in install/kubernetes/helm/istio-init/files/crd*yaml; do kubectl delete -f $i; done
+```
 
----
+Showing the pods
 
+```
 kubectl get pod -n istio-system
 kubectl get svc -n istio-system
 kubectl --namespace istio-system top pods --containers
 
 istioctl proxy-status
+```
 
+Showing the Istio Address
+
+```
 echo "Istio Services: $(minikube ip):$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')"
 ```
 
-`kubectl create -f bpe-api/kubernates/namespace-bpe.json`
+Showing the IP on MAC OS
 
-`kubectl label namespace bpe istio-injection=enabled --overwrite`
+`echo "Local IP: $(ipconfig getifaddr en0)"`
 
-`kubectl create secret docker-registry service-registry --namespace=bpe --docker-server=<local ip>:5000 --docker-username=admin --docker-password=admin`
+
+**Deploying the Sample**
+
+Creating an environment variable for dynamic action inside the sample 
+
+```
+kubectl create configmap bpe-config --from-literal='ambiente=2' -n bpe
+kubectl edit configmap bpe-config -n bpe
+kubectl patch deployment bpe-api-1.0.8 -p {\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" -n bpe
+```
+
+Creating a namespace and defining the automatic inject for the Istio
+
+```
+kubectl create -f bpe-api/kubernates/namespace-bpe.json
+
+kubectl label namespace bpe istio-injection=enabled --overwrite
+```
+
+Defining the user and password to interact with the Registry
+
+```
+kubectl create secret docker-registry service-registry --namespace=bpe --docker-server=<local ip>:5000 --docker-username=admin --docker-password=admin
+```
+
+Creating the Service, Deployment and Gateway 
 
 ```
 kubectl create -f bpe-api/kubernates/Deployment-istio.yml
@@ -117,47 +179,33 @@ kubectl create -f bpe-qrcode/kubernates/Deployment-istio.yml
 kubectl create -f bpe-qrcode/kubernates/Service.yml
 ```
 
+Showing the pods
+
 `kubectl get pods --namespace=bpe`
 
-`kubectl describe pod bpe-api-1.0.0 --namespace=bpe`
+Showing the details 
 
+`kubectl describe pod bpe-api-<version> --namespace=bpe`
 
-**EFK**
+Testing the pod
 
 ```
-kubectl create namespace logging
-
-kubectl create -f kubernetes/logging/elastic.yaml -n logging
-kubectl get pods -n logging
-kubectl get service -n logging
-
-# port different of 9200 in kubectl get service -n logging
-curl $(minikube ip):32326
-
-kubectl create -f kubernetes/logging/kibana.yaml -n logging
-kubectl get pods -n logging
-kubectl get service -n logging
-
-kubectl create -f kubernetes/logging/fluentd-rbac.yaml
-kubectl create -f kubernetes/logging/fluentd-daemonset.yaml
-kubectl get pods -n kube-system
-kubectl logs fluentd-????? -n kube-system
-
-echo "Kibana URL: $(minikube ip):port of kibana"
+kubectl exec -it $(kubectl get pod -l app=bpeapi -n bpe -o jsonpath='{.items[0].metadata.name}') -c bpeapi -- curl bpeapi:8080/versao
 ```
 
-**Tools**
+
+**Istio Tools**
 
 Jaeger
 
-`kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 15032:16686`
+```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 15032:16686```
 
 [http://localhost:15032](http://localhost:15032) 
 
 
 Kiali
 
-`kubectl port-forward $(kubectl get pod -n istio-system -l app=kiali -o jsonpath='{.items[0].metadata.name}') -n istio-system 20001`
+```kubectl port-forward $(kubectl get pod -n istio-system -l app=kiali -o jsonpath='{.items[0].metadata.name}') -n istio-system 20001```
 
 [http://localhost:20001/](http://localhost:20001/) 
 
@@ -166,14 +214,49 @@ admin:admin
 
 Grafana
 
-`kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000`
+```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000```
 
-[http://localhost:3000/](http://localhost:3000/) 
+[http://localhost:3000/dashboard/db/istio-mesh-dashboard](http://localhost:3000/dashboard/db/istio-mesh-dashboard) 
 
 
 Remove port forward
 
-`killall kubectl` 
+```killall kubectl``` 
+
+
+**EFK (Monitoring)**
+
+Deploying the components
+
+```
+kubectl create namespace logging
+
+kubectl create -f extra/logging/kubernetes/elastic.yaml -n logging
+kubectl create -f extra/logging/kubernetes/kibana.yaml -n logging
+kubectl create -f extra/logging/kubernetes/fluentd-rbac.yaml
+kubectl create -f extra/logging/kubernetes/fluentd-daemonset.yaml
+```
+
+Showing the pods
+
+```
+kubectl get pods,service -n logging
+kubectl get pods -n kube-system
+```
+
+Viewing the log of the fluentd
+
+```
+kubectl logs $(kubectl get pods --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' -n kube-system | grep fluentd) -n kube-system
+```
+
+Showing the Minikube IP
+
+`echo "Minikube IP: $(minikube ip)"`
+
+Showing the Kibana Port
+
+`kubectl describe svc kibana -n logging | grep NodePort`
 
 
 ## Interacting with the API
@@ -185,7 +268,7 @@ curl \
   -H "Content-Type: application/json" \
   -X POST \
   -d '{"ambiente": "2", "uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13","cbp": "12345678"}' \
-  http://localhost:8080/api/qrcode
+  http://<url>/api/qrcode
 ```
 
 Retrieving a dynamic URL
@@ -195,5 +278,5 @@ curl \
   -H "Content-Type: application/json" \
   -X POST \
   -d '{"ambiente": "2", "uf": "23", "emissao": "20190621","documento": "68830611000","modelo": "63","serie": "001","tipoEmissao": "1","numeroDocumentoFiscal": "13"}' \
-  http://localhost:8080/api/qrcode
+  http://<url>/api/qrcode
 ```

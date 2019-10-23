@@ -1,6 +1,6 @@
 package test.rest;
 
-import br.com.trevezani.bean.ChaveBean;
+import br.com.sample.bean.ChaveBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;

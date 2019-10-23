@@ -5,6 +5,7 @@ metadata:
   namespace: bpe
   labels:
     app: bpe-api
+    service: bpe-api
 spec:
   ports:
     - name: http
