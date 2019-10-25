@@ -83,9 +83,11 @@ public class QRCodeEndPoint {
             jsonBuilder.add("correlation-id", correlationId);
             jsonBuilder.add("exception", ex.toString());
 
-            logger.error(jsonBuilder.build().toString(), ex);
+            JsonObject json = jsonBuilder.build();
 
-            return Response.serverError().entity(jsonBuilder.build()).build();
+            logger.error(json.toString(), ex);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(json).build();
         }
 
         StringBuilder retorno = new StringBuilder();

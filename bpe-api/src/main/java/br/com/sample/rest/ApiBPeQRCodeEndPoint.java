@@ -26,6 +26,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static java.lang.Thread.*;
+
 @ApplicationScoped
 @Path("/")
 @Traced
@@ -144,6 +146,7 @@ public class ApiBPeQRCodeEndPoint {
 
     private JsonObject getQRCodeBeanFallBack(final String correlationId, final String beanJsonString) {
         JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("app", servicename);
         json.add("correlation-id", correlationId);
         json.add("qrcode", "NA");
 
