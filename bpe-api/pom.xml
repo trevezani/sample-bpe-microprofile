@@ -70,13 +70,13 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.28.0</version>
+                <version>0.31.0</version>
                 <configuration>
                     <images>
                         <image>
                             <name>${project.build.finalName}:${project.version}</name>
                             <build>
-                                <dockerFileDir>${project.basedir}</dockerFileDir>
+                                <dockerFile>${project.basedir}/${dockerfile}</dockerFile>
                             </build>
                         </image>
                     </images>
@@ -161,4 +161,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>normal</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <dockerfile>DockerfileNormal</dockerfile>
+            </properties>
+        </profile>
+        <profile>
+            <id>istio</id>
+            <properties>
+                <dockerfile>DockerfileIstio</dockerfile>
+            </properties>
+        </profile>
+    </profiles>
 </project>

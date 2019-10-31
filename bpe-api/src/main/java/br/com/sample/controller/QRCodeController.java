@@ -46,8 +46,6 @@ public class QRCodeController {
 
         JsonObject json = jsonBuilder.build();
 
-        logger.info(json.toString());
-
         tracer.activeSpan().log(json.toString());
 
         Client client = ClientTracingRegistrar.configure(ClientBuilder.newBuilder()).build();
@@ -63,10 +61,14 @@ public class QRCodeController {
     }
 
     public JsonObject getQRCodeBeanFallBack(final String correlationId, final String beanJsonString) {
-        JsonObjectBuilder json = Json.createObjectBuilder();
-        json.add("correlation-id", correlationId);
-        json.add("qrcode", "NA");
+        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+        jsonBuilder.add("correlation-id", correlationId);
+        jsonBuilder.add("qrcode", "NA");
 
-        return json.build();
+        JsonObject json = jsonBuilder.build();
+
+        logger.info(json.toString());
+
+        return json;
     }
 }
