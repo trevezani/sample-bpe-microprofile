@@ -4,7 +4,7 @@
     <groupId>br.com.sample</groupId>
     <artifactId>bpe-api</artifactId>
     <name>BPe API</name>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
     <packaging>war</packaging>
 
     <properties>

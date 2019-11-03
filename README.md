@@ -91,7 +91,11 @@ curl -H "Content-Type: application/json" -X POST -d '{"uf": "23", "emissao": "20
 
 Generating the image and push them
 
-`mvn -Ddocker.registry=localhost:5000 -Ddocker.username=admin -Ddocker.password=admin clean package docker:build docker:push`
+```
+mvn -Ddocker.registry=localhost:5000 -Ddocker.username=admin -Ddocker.password=admin clean package -f bpe-api/pom.xml docker:build docker:push -Pistio
+mvn -Ddocker.registry=localhost:5000 -Ddocker.username=admin -Ddocker.password=admin clean package -f bpe-qrcode/pom.xml docker:build docker:push -Pistio
+mvn -Ddocker.registry=localhost:5000 -Ddocker.username=admin -Ddocker.password=admin clean package -f bpe-chave/pom.xml docker:build docker:push -Pistio
+```
 
 
 **Registry UI**
@@ -156,6 +160,14 @@ Showing the IP on MAC OS
 
 **Deploying the Sample**
 
+Creating a namespace and defining the automatic inject for the Istio
+
+```
+kubectl create -f extra/kubernates/plataform/namespace-bpe.json
+
+kubectl label namespace bpe istio-injection=enabled --overwrite
+```
+
 Creating an environment variable for dynamic action inside the sample 
 
 ```
@@ -164,32 +176,31 @@ kubectl edit configmap bpe-config -n bpe
 kubectl patch deployment bpe-api-1.0.8 -p {\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" -n bpe
 ```
 
-Creating a namespace and defining the automatic inject for the Istio
-
-```
-kubectl create -f bpe-api/kubernates/namespace-bpe.json
-
-kubectl label namespace bpe istio-injection=enabled --overwrite
-```
-
 Defining the user and password to interact with the Registry
 
 ```
-kubectl create secret docker-registry service-registry --namespace=bpe --docker-server=<local ip>:5000 --docker-username=admin --docker-password=admin
+kubectl create secret docker-registry service-registry --namespace=bpe --docker-server=$(ipconfig getifaddr en0):5000 --docker-username=admin --docker-password=admin
 ```
 
 Creating the Service, Deployment and Gateway 
 
 ```
-kubectl create -f bpe-api/kubernates/Deployment-istio.yml
-kubectl create -f bpe-api/kubernates/Service.yml
-kubectl create -f bpe-api/kubernates/Gateway.yml
+kubectl create -f extra/kubernates/plataform/bpeapi-service.yml
+kubectl create -f extra/kubernates/plataform/bpeapi-deployment.yml
 
-kubectl create -f bpe-chave/kubernates/Deployment-istio.yml
-kubectl create -f bpe-chave/kubernates/Service.yml
+kubectl create -f extra/kubernates/plataform/bpeqrcode-service.yml
+kubectl create -f extra/kubernates/plataform/bpeqrcode-deployment.yml
 
-kubectl create -f bpe-qrcode/kubernates/Deployment-istio.yml
-kubectl create -f bpe-qrcode/kubernates/Service.yml
+kubectl create -f extra/kubernates/plataform/bpechave-service.yml
+kubectl create -f extra/kubernates/plataform/bpechave-deployment.yml
+
+kubectl create -f extra/kubernates/networking/bpeapi-gateway.yml
+```
+
+Testing the Gateway
+
+```
+curl $(minikube ip):$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')/api/versao
 ```
 
 Showing the pods
@@ -203,7 +214,7 @@ Showing the details
 Testing the pod
 
 ```
-kubectl exec -it $(kubectl get pod -l app=bpeapi -n bpe -o jsonpath='{.items[0].metadata.name}') -c bpeapi -- curl bpeapi:8080/versao
+kubectl exec -it $(kubectl get pod -l app=bpe-api -n bpe -o jsonpath='{.items[0].metadata.name}') -n bpe -c bpe-api -- curl bpe-api:8080/health
 ```
 
 
@@ -244,10 +255,10 @@ Deploying the components
 ```
 kubectl create namespace logging
 
-kubectl create -f extra/logging/kubernetes/elastic.yaml -n logging
-kubectl create -f extra/logging/kubernetes/kibana.yaml -n logging
-kubectl create -f extra/logging/kubernetes/fluentd-rbac.yaml
-kubectl create -f extra/logging/kubernetes/fluentd-daemonset.yaml
+kubectl create -f extra/kubernetes/telemetry/elastic.yaml -n logging
+kubectl create -f extra/kubernetes/telemetry/kibana.yaml -n logging
+kubectl create -f extra/kubernetes/telemetry/fluentd-rbac.yaml
+kubectl create -f extra/kubernetes/telemetry/fluentd-daemonset.yaml
 ```
 
 Showing the pods
@@ -273,6 +284,12 @@ Showing the Kibana Port
 
 
 ## Interacting with the API
+
+Showing the URL
+
+```
+echo "URL: $(minikube ip):$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')"
+```
 
 Retrieving a static URL
 
