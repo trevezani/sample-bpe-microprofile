@@ -4,6 +4,7 @@ import br.com.sample.bean.QRCodeBean;
 import br.com.sample.controller.QRCodeController;
 import br.com.sample.util.CorrelationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
@@ -31,6 +32,14 @@ public class ApiBPeQRCodeEndPoint {
     @Inject
     private CorrelationUtils correlationUtils;
 
+    @Inject
+    @ConfigProperty(name = "bpeqrcode.api.url", defaultValue = "http://bpe-qrcode:8080/")
+    private String bpeqrcodeURL;
+
+    @Inject
+    @ConfigProperty(name = "app.name")
+    private String app;
+
     @POST
     @Counted(monotonic = true, name = "bpeapi-bpeqrcode-count", absolute = true)
     @Timed(name = "bpeapi-bpeqrcode-time", absolute = true)
@@ -48,6 +57,7 @@ public class ApiBPeQRCodeEndPoint {
             jsonBuilder.add("correlation-id", correlationId);
             jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
+            jsonBuilder.add("app", app);
 
             obj = jsonBuilder.build();
 
@@ -64,6 +74,7 @@ public class ApiBPeQRCodeEndPoint {
             jsonBuilder.add("correlation-id", correlationId);
             jsonBuilder.add("exception", e.toString());
             jsonBuilder.add("bean", bean.toString());
+            jsonBuilder.add("app", app);
 
             obj = jsonBuilder.build();
 
@@ -87,9 +98,10 @@ public class ApiBPeQRCodeEndPoint {
             }
 
             jsonBuilder.add("correlation-id", correlationId);
-            jsonBuilder.add("message", "Exception trying to get the response from bpe-qrcode service");
+            jsonBuilder.add("message", "Exception trying to get the response from ".concat(bpeqrcodeURL));
             jsonBuilder.add("exception", info);
             jsonBuilder.add("bean", bean.toString());
+            jsonBuilder.add("app", app);
 
             obj = jsonBuilder.build();
 

@@ -39,9 +39,19 @@ Debugging
 
 `mvn thorntail:run -Dswarm.port.offset=200`
 
-or inside the directory extra/test
+or
 
-`docker-compose up --build`
+```
+mvn clean package -f bpe-api/pom.xml docker:build
+mvn clean package -f bpe-qrcode/pom.xml docker:build
+mvn clean package -f bpe-chave/pom.xml docker:build
+```
+
+Inside the extra/test
+
+```
+docker-compose up --build
+```
 
 
 **Jaeger Traicing**
@@ -73,7 +83,7 @@ curl -H "Content-Type: application/json" -X POST -d '{"uf": "23", "emissao": "20
 
 `mkdir -p /opt/docker/auth`
 
-`docker run --entrypoint htpasswd registry:2 -Bbn admin admin > /opt/docker/auth/htpasswd`
+`docker run --rm --entrypoint htpasswd registry:2 -Bbn admin admin > /opt/docker/auth/htpasswd`
 
 `docker run -d -p 5000:5000 --restart=always --name registry -e REGISTRY_STORAGE_DELETE_ENABLED=true -v /opt/docker/auth:/auth -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 registry:2`
 
@@ -90,6 +100,9 @@ Viewer for the images present in the Registry
 
 [https://github.com/jc21/docker-registry-ui](https://github.com/jc21/docker-registry-ui)
 
+```
+docker run --rm -it -p 5001:80 --name registry-ui -e REGISTRY_HOST=$(ipconfig getifaddr en0):5000 -e REGISTRY_STORAGE_DELETE_ENABLED=true -e REGISTRY_SSL=false -e REGISTRY_USER=admin -e REGISTRY_PASS=admin jc21/registry-ui
+```
 
 **Minikube/Istio**
 

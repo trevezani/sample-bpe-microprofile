@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Random;
 
 @ApplicationScoped
-public class BPeChaveController {
+public class ChaveController {
     @Inject
     private StringUtils stringUtils;
 

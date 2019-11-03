@@ -1,7 +1,8 @@
 package br.com.sample.rest;
 
 import br.com.sample.bean.ChaveBean;
-import br.com.sample.controller.BPeChaveController;
+import br.com.sample.controller.ChaveController;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -26,10 +28,12 @@ import javax.ws.rs.core.Response;
 public class BPeChaveEndPoint {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String servicename = "bpe-chave";
+    @Inject
+    @ConfigProperty(name = "app.name")
+    private String app;
 
     @Inject
-    private BPeChaveController controller;
+    private ChaveController chaveController;
 
     @GET
     @Counted(monotonic = true, name = "bpechave-count", absolute = true)
@@ -42,7 +46,7 @@ public class BPeChaveEndPoint {
                                @PathParam("documento") String documento, @PathParam("modelo") String modelo,
                                @PathParam("serie") String serie, @PathParam("tipoEmissao") String tipoEmissao,
                                @PathParam("numeroDocumentoFiscal") String numeroDocumentoFiscal, @PathParam("cbp") String cbp) {
-        String chave = controller.getChaveBPe( uf, emissao, documento, modelo, serie, tipoEmissao, numeroDocumentoFiscal, cbp);
+        String chave = chaveController.getChaveBPe( uf, emissao, documento, modelo, serie, tipoEmissao, numeroDocumentoFiscal, cbp);
 
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("chbpe", chave);
@@ -62,23 +66,30 @@ public class BPeChaveEndPoint {
         final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
 
         if (!bean.isValid()) {
-            jsonBuilder.add("app", servicename);
             jsonBuilder.add("correlation-id", correlationId);
             jsonBuilder.add("message", "Parâmetros inválidos");
             jsonBuilder.add("bean", bean.toString());
+            jsonBuilder.add("app", app);
 
-            logger.error(jsonBuilder.build().toString());
+            JsonObject json = jsonBuilder.build();
 
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonBuilder.build()).build();
+            logger.error(json.toString());
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(json).build();
         }
 
-        String chave = controller.getChaveBPe( bean.getUf(), bean.getEmissao(), bean.getDocumento(), bean.getModelo(),
+        String chave = chaveController.getChaveBPe( bean.getUf(), bean.getEmissao(), bean.getDocumento(), bean.getModelo(),
                 bean.getSerie(), bean.getTipoEmissao(), bean.getNumeroDocumentoFiscal(), bean.getCbp());
 
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("chbpe", chave);
 
-        logger.info(String.format("[%s] Key generated %s", correlationId, chave));
+        final JsonObjectBuilder jsonBuilderLog = Json.createObjectBuilder();
+        jsonBuilderLog.add("correlation-id", correlationId);
+        jsonBuilderLog.add("message", String.format("Chave gerada [%s]", chave));
+        jsonBuilderLog.add("app", app);
+
+        logger.info(jsonBuilderLog.build().toString());
 
         return Response.ok(json.build()).build();
     }
