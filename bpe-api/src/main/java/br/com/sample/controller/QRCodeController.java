@@ -40,8 +40,7 @@ public class QRCodeController {
     private Tracer tracer;
 
     @Counted
-    @Timeout(300)
-    @Retry(maxRetries = 2)
+    @Timeout(3000)
     @Bulkhead(value = 2, waitingTaskQueue = 10)
     @Fallback(fallbackMethod = "getQRCodeBeanFallBack")
     public JsonObject getQRCodeBean(final String correlationId, final String beanJsonString) {

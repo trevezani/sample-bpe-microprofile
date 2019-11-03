@@ -37,8 +37,7 @@ public class ChaveController {
     private Tracer tracer;
 
     @Counted
-    @Timeout(300)
-    @Retry(maxRetries = 2)
+    @Timeout(3000)
     @Bulkhead(value = 2, waitingTaskQueue = 10)
     @Fallback(fallbackMethod = "getChaveBeanFallBack")
     public JsonObject getChaveBean(final String correlationId, final String beanJsonString) {
