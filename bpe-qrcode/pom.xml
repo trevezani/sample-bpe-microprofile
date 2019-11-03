@@ -5,7 +5,7 @@
     <groupId>br.com.sample</groupId>
     <artifactId>bpe-qrcode</artifactId>
     <name>BPe QRCode URL</name>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
     <packaging>war</packaging>
 
     <properties>

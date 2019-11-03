@@ -2,15 +2,16 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: bpe-qrcode
+  namespace: bpe
 spec:
   host: bpe-qrcode
   subsets:
-    - name: v1
+    - name: v11
       labels:
-        version: 1.0.1
-    - name: v2
+        version: v11
+    - name: v12
       labels:
-        version: 1.0.2
+        version: v12
 
 
 

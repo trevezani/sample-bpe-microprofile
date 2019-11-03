@@ -2,14 +2,15 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: bpe-api
+  namespace: bpe
 spec:
   host: bpe-api
   subsets:
-    - name: v2
+    - name: v10
       labels:
-        version: 1.0.2
-    - name: v3
+        version: v10
+    - name: v11
       labels:
-        version: 1.0.3
+        version: v11
 
 

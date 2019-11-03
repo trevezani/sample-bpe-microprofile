@@ -15,13 +15,13 @@ spec:
       route:
         - destination:
             host: bpe-api
-            subset: v2
+            subset: v10
             port:
               number: 8080
           weight: 90
         - destination:
             host: bpe-api
-            subset: v3
+            subset: v11
             port:
               number: 8080
           weight: 10
