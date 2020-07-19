@@ -77,7 +77,7 @@ curl -H "Content-Type: application/json" -X POST -d '{"uf": "23", "emissao": "20
 ```
 
 
-## Kubernates
+## Kubernetes
 
 **Docker Registry**
 
